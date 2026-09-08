@@ -3,6 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+concurrency:
+  group: client-build
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -26,6 +29,11 @@ jobs:
         run: |
           flutter analyze --no-fatal-infos
           flutter test test/features/client_api_test.dart
+      - name: Add Dart global tools to PATH
+        shell: pwsh
+        run: |
+          if ($env:PUB_CACHE) { Add-Content $env:GITHUB_PATH "$env:PUB_CACHE\bin" }
+          else { Add-Content $env:GITHUB_PATH "$env:LOCALAPPDATA\Pub\Cache\bin" }
       - name: Build Windows installer
         run: dart setup.dart windows --env stable -v
       - uses: actions/upload-artifact@v4

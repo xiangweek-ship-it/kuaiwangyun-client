@@ -44,6 +44,7 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
   }
 
   Future<void> _clearProfiles() async {
+    if (!mounted) return;
     await ref.read(setupActionProvider.notifier).setRunning(false);
     for (final profile in List<Profile>.of(
       ref.read(profilesProvider),
@@ -64,6 +65,7 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
   }
 
   Future<void> _handleError(Object error) async {
+    if (!mounted) return;
     final code = error is ClientApiException ? error.code : 'network_error';
     if (code == 'unauthorized') {
       await _clearProfiles();

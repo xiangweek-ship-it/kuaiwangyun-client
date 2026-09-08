@@ -48,9 +48,11 @@ class AboutView extends StatelessWidget {
           },
         ),
         ListItem(
-          title: const Text('Telegram'),
+          title: Text(appLocalizations.kwAccountWebsite),
           onTap: () {
-            globalState.openUrl('https://t.me/FlClash');
+            globalState.openUrl(
+              'https://kuaiwangyun.com/vpn/user/customer_service.php',
+            );
           },
           trailing: const Icon(Icons.launch),
         ),
