@@ -1,0 +1,14 @@
+script_template: inno_setup.iss
+app_id: 82C85F16-351B-4A17-9940-773AA0531E24
+app_name: Kuaiwangyun
+publisher: Kuaiwangyun
+publisher_url: https://kuaiwangyun.com/vpn
+display_name: 快网云
+executable_name: Kuaiwangyun.exe
+output_base_file_name: Kuaiwangyun.exe
+setup_icon_file: ..\windows\runner\resources\app_icon.ico
+locales:
+  - lang: zh
+    file: ..\windows\packaging\exe\ChineseSimplified.isl
+  - lang: en
+privileges_required: admin
