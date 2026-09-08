@@ -1829,15 +1829,20 @@ class AppLocalizations {
     return Intl.message('TUN', name: 'action_tun', desc: '', args: []);
   }
 
-  /// `Disclaimer`
+  /// `Getting started`
   String get disclaimer {
-    return Intl.message('Disclaimer', name: 'disclaimer', desc: '', args: []);
+    return Intl.message(
+      'Getting started',
+      name: 'disclaimer',
+      desc: '',
+      args: [],
+    );
   }
 
-  /// `This software is only used for non-commercial purposes such as learning exchanges and scientific research. It is strictly prohibited to use this software for commercial purposes. Any commercial activity, if any, has nothing to do with this software.`
+  /// `This client is based on the open-source FlClash project. Android requests VPN permission when connecting; Windows TUN mode may request administrator permission. Sign in with your Kuaiwangyun account.`
   String get disclaimerDesc {
     return Intl.message(
-      'This software is only used for non-commercial purposes such as learning exchanges and scientific research. It is strictly prohibited to use this software for commercial purposes. Any commercial activity, if any, has nothing to do with this software.',
+      'This client is based on the open-source FlClash project. Android requests VPN permission when connecting; Windows TUN mode may request administrator permission. Sign in with your Kuaiwangyun account.',
       name: 'disclaimerDesc',
       desc: '',
       args: [],

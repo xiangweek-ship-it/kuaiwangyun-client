@@ -50,9 +50,7 @@ class AboutView extends StatelessWidget {
         ListItem(
           title: Text(appLocalizations.kwAccountWebsite),
           onTap: () {
-            globalState.openUrl(
-              'https://kuaiwangyun.com/vpn/user/customer_service.php',
-            );
+            globalState.openUrl('https://kuaiwangyun.com/vpn/user/customer_service.php');
           },
           trailing: const Icon(Icons.launch),
         ),

@@ -82,3 +82,5 @@ devtools_options.yaml
 *.keystore
 **/local.properties
 *.cookies
+
+/android/.kotlin/

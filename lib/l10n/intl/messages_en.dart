@@ -330,9 +330,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "direct": MessageLookupByLibrary.simpleMessage("Direct"),
     "disableUDP": MessageLookupByLibrary.simpleMessage("Disable UDP"),
-    "disclaimer": MessageLookupByLibrary.simpleMessage("Disclaimer"),
+    "disclaimer": MessageLookupByLibrary.simpleMessage("Getting started"),
     "disclaimerDesc": MessageLookupByLibrary.simpleMessage(
-      "This software is only used for non-commercial purposes such as learning exchanges and scientific research. It is strictly prohibited to use this software for commercial purposes. Any commercial activity, if any, has nothing to do with this software.",
+      "This client is based on the open-source FlClash project. Android requests VPN permission when connecting; Windows TUN mode may request administrator permission. Sign in with your Kuaiwangyun account.",
     ),
     "disconnected": MessageLookupByLibrary.simpleMessage("Disconnected"),
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage(

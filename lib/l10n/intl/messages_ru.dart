@@ -335,11 +335,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "direct": MessageLookupByLibrary.simpleMessage("Прямой"),
     "disableUDP": MessageLookupByLibrary.simpleMessage("Отключить UDP"),
-    "disclaimer": MessageLookupByLibrary.simpleMessage(
-      "Отказ от ответственности",
-    ),
+    "disclaimer": MessageLookupByLibrary.simpleMessage("Начало работы"),
     "disclaimerDesc": MessageLookupByLibrary.simpleMessage(
-      "Это программное обеспечение используется только в некоммерческих целях, таких как учебные обмены и научные исследования. Запрещено использовать это программное обеспечение в коммерческих целях. Любая коммерческая деятельность, если таковая имеется, не имеет отношения к этому программному обеспечению.",
+      "Клиент основан на открытом проекте FlClash. Android запрашивает разрешение VPN; режим TUN в Windows может требовать права администратора. Войдите в аккаунт Kuaiwangyun.",
     ),
     "disconnected": MessageLookupByLibrary.simpleMessage("Отключено"),
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage(

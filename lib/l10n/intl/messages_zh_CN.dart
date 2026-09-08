@@ -232,9 +232,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage("开发者模式已启用。"),
     "direct": MessageLookupByLibrary.simpleMessage("直连"),
     "disableUDP": MessageLookupByLibrary.simpleMessage("禁用UDP"),
-    "disclaimer": MessageLookupByLibrary.simpleMessage("免责声明"),
+    "disclaimer": MessageLookupByLibrary.simpleMessage("使用说明"),
     "disclaimerDesc": MessageLookupByLibrary.simpleMessage(
-      "本软件仅供学习交流、科研等非商业性质的用途，严禁将本软件用于商业目的。如有任何商业行为，均与本软件无关。",
+      "本客户端基于 FlClash 开源项目开发。首次连接时，Android 会请求 VPN 授权；Windows 开启 TUN 模式可能需要管理员授权。请使用你的快网云账号登录。",
     ),
     "disconnected": MessageLookupByLibrary.simpleMessage("已断开"),
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage("发现新版本"),

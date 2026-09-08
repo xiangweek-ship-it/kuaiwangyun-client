@@ -260,9 +260,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "direct": MessageLookupByLibrary.simpleMessage("ダイレクト"),
     "disableUDP": MessageLookupByLibrary.simpleMessage("UDPを無効化"),
-    "disclaimer": MessageLookupByLibrary.simpleMessage("免責事項"),
+    "disclaimer": MessageLookupByLibrary.simpleMessage("使い方"),
     "disclaimerDesc": MessageLookupByLibrary.simpleMessage(
-      "本ソフトウェアは学習交流や科学研究などの非営利目的でのみ使用されます。商用利用は厳禁です。いかなる商用活動も本ソフトウェアとは無関係です。",
+      "このクライアントは FlClash に基づいています。Android は接続時に VPN 権限を要求し、Windows の TUN モードには管理者権限が必要な場合があります。快网云アカウントでログインしてください。",
     ),
     "disconnected": MessageLookupByLibrary.simpleMessage("切断済み"),
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage("新バージョンを発見"),
