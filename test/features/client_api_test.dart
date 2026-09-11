@@ -22,6 +22,23 @@ class ApiAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class BytesAdapter implements HttpClientAdapter {
+  BytesAdapter(this.bytes, {this.headers = const {}});
+  final Uint8List bytes;
+  final Map<String, List<String>> headers;
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    return ResponseBody(bytes, 200, headers: headers);
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 Map<String, dynamic> payload({bool active = true, String expiry = '2030-01-01T00:00:00+08:00'}) => {
   'ok': true,
   'account': {'id': 1, 'username': 'qa', 'active': active, 'membership_expires_at': expiry},
@@ -61,5 +78,25 @@ void main() {
     expect(requests[1].headers['Authorization'], 'Bearer $token');
     expect(requests[0].data, {'username': 'qa', 'password': 'not-persisted'});
     api.close();
+  });
+
+  test('subscription source is fetched as bytes with usage metadata', () async {
+    final source = ClientSource.fromJson({
+      'id': 1,
+      'name': 'Route A',
+      'url':
+          'https://kuaiwangyun.com/vpn/user/subscribe.php?key=${'a' * 64}&source=1&client=clash',
+    });
+    final dio = Dio(BaseOptions(baseUrl: '$clientWebsite/api/client.php'))
+      ..httpClientAdapter = BytesAdapter(
+        Uint8List.fromList(utf8.encode('mixed-port: 7890\n')),
+        headers: {
+          'subscription-userinfo': ['upload=1; download=2; total=3; expire=4'],
+        },
+      );
+    final response = await ClientApi(dio: dio).fetchSource(source);
+    expect(utf8.decode(response.bytes), contains('mixed-port'));
+    expect(response.userInfo, contains('expire=4'));
+    dio.close(force: true);
   });
 }

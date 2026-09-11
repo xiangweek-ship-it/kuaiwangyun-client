@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -68,6 +70,12 @@ class ClientAccount {
       expiresAt!.isAfter(serverTime.add(elapsed.elapsed));
 }
 
+class ClientSourceResponse {
+  const ClientSourceResponse({required this.bytes, required this.userInfo});
+  final Uint8List bytes;
+  final String? userInfo;
+}
+
 class ClientApi {
   ClientApi({Dio? dio, FlutterSecureStorage? storage})
     : _dio =
@@ -133,6 +141,38 @@ class ClientApi {
 
   Future<ClientAccount> account() async =>
       ClientAccount.fromJson(await _request('account'));
+
+  Future<ClientSourceResponse> fetchSource(ClientSource source) async {
+    try {
+      final response = await _dio.get<Uint8List>(
+        source.url,
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: {
+            'Accept': 'text/yaml, application/yaml, text/plain;q=0.9, */*',
+          },
+        ),
+      );
+      final bytes = response.data;
+      if (bytes == null || bytes.isEmpty) {
+        throw const ClientApiException('source_unavailable');
+      }
+      return ClientSourceResponse(
+        bytes: bytes,
+        userInfo: response.headers.value('subscription-userinfo'),
+      );
+    } on ClientApiException {
+      rethrow;
+    } on DioException catch (error) {
+      final status = error.response?.statusCode;
+      throw ClientApiException(
+        status == 403 || status == 401
+            ? 'source_unauthorized'
+            : 'source_unavailable',
+      );
+    }
+  }
+
   Future<void> logout() async {
     try {
       if (_token != null) await _request('logout', data: {});

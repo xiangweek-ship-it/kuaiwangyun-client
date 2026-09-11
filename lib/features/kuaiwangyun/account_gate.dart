@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/pages/home.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -96,8 +97,14 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
   }
 
   Future<void> _syncProfiles(ClientAccount account) async {
-    final deadline = DateTime.now().add(const Duration(seconds: 30));
-    while (mounted && !ref.read(initProvider)) {
+    // The first launch on Windows and Android can take a little longer while
+    // the embedded core creates its data directory and opens the control port.
+    // Keep the login flow patient so a slow first start does not look like a
+    // failed subscription sync.
+    final deadline = DateTime.now().add(const Duration(seconds: 90));
+    while (mounted &&
+        (!ref.read(initProvider) ||
+            ref.read(coreStatusProvider) != CoreStatus.connected)) {
       if (DateTime.now().isAfter(deadline)) {
         throw const ClientApiException('core_not_ready');
       }
@@ -105,25 +112,55 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
     }
     if (!mounted) return;
     var failures = 0;
+    var synced = 0;
+    int? firstSyncedId;
     for (final source in account.sources) {
       if (!mounted || !account.canConnect) break;
-      try {
-        final existing = ref
-            .read(profilesProvider)
-            .where((p) => p.url == source.url)
-            .firstOrNull;
-        final updated =
-            await (existing ??
-                    Profile.normal(url: source.url, label: source.name))
-                .copyWith(label: source.name)
-                .update();
-        if (!mounted) return;
-        ref.read(profilesActionProvider.notifier).putProfile(updated);
-      } catch (_) {
-        failures++;
+      var completed = false;
+      for (var attempt = 0; attempt < 3 && !completed; attempt++) {
+        try {
+          final existing = ref
+              .read(profilesProvider)
+              .where((p) => p.url == source.url)
+              .firstOrNull;
+          final base =
+              (existing ?? Profile.normal(url: source.url, label: source.name))
+                  .copyWith(label: source.name);
+          final response = await _api.fetchSource(source);
+          final updated = await base
+              .copyWith(
+                subscriptionInfo: SubscriptionInfo.formHString(
+                  response.userInfo,
+                ),
+              )
+              .saveFile(response.bytes);
+          if (!mounted) return;
+          ref.read(profilesActionProvider.notifier).putProfile(updated);
+          firstSyncedId ??= updated.id;
+          synced++;
+          completed = true;
+        } catch (_) {
+          if (attempt < 2) {
+            await Future<void>.delayed(Duration(seconds: attempt + 1));
+          }
+        }
       }
+      if (!completed) failures++;
     }
-    if (mounted) setState(() => _error = failures > 0 ? 'partial_sync' : null);
+    if (firstSyncedId != null) {
+      final current = ref.read(currentProfileProvider);
+      if (current == null || !_managed(current)) {
+        ref.read(currentProfileIdProvider.notifier).value = firstSyncedId;
+      }
+      await ref
+          .read(setupActionProvider.notifier)
+          .applyProfile(force: true, silence: true);
+    }
+    if (mounted) {
+      setState(() {
+        _error = failures > 0 || synced == 0 ? 'partial_sync' : null;
+      });
+    }
   }
 
   Future<void> _login() async {
