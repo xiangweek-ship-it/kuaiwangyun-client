@@ -1,0 +1,44 @@
+name: Build Kuaiwangyun
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+concurrency:
+  group: client-build
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.4'
+          cache-dependency-path: core/go.sum
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.4'
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Analyze and test account integration
+        run: |
+          flutter analyze --no-fatal-infos
+          flutter test test/features/client_api_test.dart
+      - name: Add Dart global tools to PATH
+        shell: pwsh
+        run: |
+          if ($env:PUB_CACHE) { Add-Content $env:GITHUB_PATH "$env:PUB_CACHE\bin" }
+          else { Add-Content $env:GITHUB_PATH "$env:LOCALAPPDATA\Pub\Cache\bin" }
+      - name: Build Windows installer
+        run: dart setup.dart windows --env stable -v
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Kuaiwangyun-Windows-x64
+          path: dist/**
+          if-no-files-found: error
+          retention-days: 14
