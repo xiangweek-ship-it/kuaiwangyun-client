@@ -96,7 +96,7 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
       _error = null;
     });
     // 同步到账户状态Provider
-    ref.read(accountProvider.notifier).update(account);
+    ref.read(accountProvider.notifier).state = account;
     if (!account.canConnect) {
       await _clearProfiles();
       return;
@@ -233,7 +233,7 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
           _error = null;
         });
         // 清空账户状态
-        ref.read(accountProvider.notifier).update(null);
+        ref.read(accountProvider.notifier).state = null;
       }
     }
   }
