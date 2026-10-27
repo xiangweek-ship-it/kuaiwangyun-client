@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   release:
-    types: [created]
+    types: [created, published]
 
 concurrency:
   group: client-build
@@ -57,9 +57,10 @@ jobs:
             **/*.zip
           retention-days: 7
       - name: Upload to Release
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.0.1
           files: |
             dist/**/*.exe
             dist/**/*.zip
@@ -104,9 +105,10 @@ jobs:
             **/*.apk
           retention-days: 7
       - name: Upload to Release
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.0.1
           files: |
             dist/**/*.apk
           generate_release_notes: false
