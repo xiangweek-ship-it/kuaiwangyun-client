@@ -113,7 +113,7 @@ Map<String, dynamic> _$AccessControlPropsToJson(_AccessControlProps instance) =>
       'mode': _$AccessControlModeEnumMap[instance.mode]!,
       'acceptList': instance.acceptList,
       'rejectList': instance.rejectList,
-      'sort': _$AccessSortTypeEnumMap[instance.sort]!,
+      'sort': _$AccessSortTypeEnumMap[instance.sortType]!,
       'isFilterSystemApp': instance.isFilterSystemApp,
       'isFilterNonInternetApp': instance.isFilterNonInternetApp,
     };
@@ -318,28 +318,28 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
   appSettingProps: json['appSettingProps'] == null
       ? defaultAppSettingProps
       : AppSettingProps.safeFromJson(
-          json['appSettingProps'] as Map<String, Object?>?,
+          json['appSettingProps'] as Map<String, Object?>,
         ),
   davProps: json['davProps'] == null
       ? null
       : DAVProps.fromJson(json['davProps'] as Map<String, dynamic>),
   networkProps: json['networkProps'] == null
       ? defaultNetworkProps
-      : NetworkProps.fromJson(json['networkProps'] as Map<String, Object?>?),
+      : NetworkProps.fromJson(json['networkProps'] as Map<String, Object?>),
   vpnProps: json['vpnProps'] == null
       ? defaultVpnProps
-      : VpnProps.fromJson(json['vpnProps'] as Map<String, Object?>?),
+      : VpnProps.fromJson(json['vpnProps'] as Map<String, Object?>),
   themeProps: ThemeProps.safeFromJson(
-    json['themeProps'] as Map<String, Object?>?,
+    json['themeProps'] as Map<String, Object?>,
   ),
   proxiesStyleProps: json['proxiesStyleProps'] == null
       ? defaultProxiesStyleProps
       : ProxiesStyleProps.fromJson(
-          json['proxiesStyleProps'] as Map<String, Object?>?,
+          json['proxiesStyleProps'] as Map<String, Object?>,
         ),
   windowProps: json['windowProps'] == null
       ? defaultWindowProps
-      : WindowProps.fromJson(json['windowProps'] as Map<String, dynamic>?),
+      : WindowProps.fromJson(json['windowProps'] as Map<String, dynamic>),
   patchClashConfig: json['patchClashConfig'] == null
       ? defaultClashConfig
       : PatchClashConfig.fromJson(
