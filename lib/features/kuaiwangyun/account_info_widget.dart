@@ -5,9 +5,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'client_api.dart';
 
+// 全局账户状态Notifier
+class AccountNotifier extends Notifier<ClientAccount?> {
+  @override
+  ClientAccount? build() {
+    return null;
+  }
+
+  void setAccount(ClientAccount? account) {
+    state = account;
+  }
+}
+
 // 全局账户状态Provider
-final accountProvider = StateProvider<ClientAccount?>((ref) {
-  return null;
+final accountProvider = NotifierProvider<AccountNotifier, ClientAccount?>(() {
+  return AccountNotifier();
 });
 
 class AccountInfoWidget extends ConsumerWidget {
