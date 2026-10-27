@@ -58,6 +58,31 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
       window?.show();
     } else if (id == 'toggle_start') {
       ref.read(commonActionProvider.notifier).toggleRunning();
+    } else if (id == 'smart_connect') {
+      // 一键智能连接：启动核心并自动选择最优线路
+      if (!ref.read(isStartProvider)) {
+        ref.read(commonActionProvider.notifier).toggleRunning();
+      }
+      // 自动选择第一个可用节点
+      Future.delayed(const Duration(seconds: 2), () {
+        try {
+          final proxies = ref.read(proxiesProvider);
+          if (proxies.isNotEmpty) {
+            final group = proxies.values.firstWhere(
+              (p) => p.type == 'Selector' || p.type == 'URLTest',
+              orElse: () => proxies.values.first,
+            );
+            if (group.all?.isNotEmpty == true) {
+              ref.read(proxiesActionProvider.notifier).changeProxy(
+                    group.name,
+                    group.all!.first,
+                  );
+            }
+          }
+        } catch (e) {
+          // 忽略错误
+        }
+      });
     } else if (id == 'redeem_card') {
       final context = globalState.navigatorKey.currentContext;
       if (context != null) {
