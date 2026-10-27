@@ -168,8 +168,8 @@ class ClientApi {
   // 卡密兑换
   Future<ClientAccount> redeemCard(String cardCode) async {
     final body = await _request(
-      'redeem_card',
-      data: {'code': cardCode.trim()},
+      'card_redeem',
+      data: {'card_code': cardCode.trim()},
     );
     return ClientAccount.fromJson(body);
   }
