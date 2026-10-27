@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/features/kuaiwangyun/card_redeem_dialog.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
@@ -91,6 +92,37 @@ class Tray {
       checked: false,
     );
     menuItems.add(startMenuItem);
+    // 一键智能连接
+    final smartConnectMenuItem = MenuItem(
+      label: '一键智能连接',
+      onClick: (_) async {
+        // 启动核心
+        if (!ref.read(isStartProvider)) {
+          commonAction.toggleRunning();
+        }
+        // 等待核心启动后自动选择最优线路
+        Future.delayed(const Duration(seconds: 2), () {
+          try {
+            final proxies = ref.read(proxiesProvider);
+            if (proxies.isNotEmpty) {
+              final group = proxies.values.firstWhere(
+                (p) => p.type == 'Selector' || p.type == 'URLTest',
+                orElse: () => proxies.values.first,
+              );
+              if (group.all?.isNotEmpty == true) {
+                ref.read(proxiesActionProvider.notifier).changeProxy(
+                      groupName: group.name,
+                      proxyName: group.all!.first,
+                    );
+              }
+            }
+          } catch (e) {
+            // 忽略错误
+          }
+        });
+      },
+    );
+    menuItems.add(smartConnectMenuItem);
     if (system.isMacOS) {
       final speedStatistics = MenuItem.checkbox(
         label: appLocalizations.speedStatistics,
@@ -182,6 +214,18 @@ class Tray {
     menuItems.add(autoStartMenuItem);
     menuItems.add(copyEnvVarMenuItem);
     menuItems.add(MenuItem.separator());
+    // 卡密兑换
+    final redeemCardMenuItem = MenuItem(
+      label: '卡密兑换',
+      onClick: (_) {
+        final context = globalState.navigatorKey.currentContext;
+        if (context != null) {
+          showCardRedeemDialog(context);
+        }
+      },
+    );
+    menuItems.add(redeemCardMenuItem);
+    menuItems.add(MenuItem.separator());
     final exitMenuItem = MenuItem(
       label: appLocalizations.exit,
       onClick: (_) async {
@@ -218,7 +262,7 @@ class Tray {
     final url = 'http://127.0.0.1:$port';
 
     final cmdline = system.isWindows
-        ? 'set \$env:all_proxy=$url'
+        ? 'set \\$env:all_proxy=$url'
         : 'export all_proxy=$url';
 
     await Clipboard.setData(ClipboardData(text: cmdline));
