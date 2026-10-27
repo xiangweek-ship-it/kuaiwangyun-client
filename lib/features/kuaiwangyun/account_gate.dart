@@ -97,6 +97,10 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
   }
 
   Future<void> _syncProfiles(ClientAccount account) async {
+    // The first launch on Windows and Android can take a little longer while
+    // the embedded core creates its data directory and opens the control port.
+    // Keep the login flow patient so a slow first start does not look like a
+    // failed subscription sync.
     final deadline = DateTime.now().add(const Duration(seconds: 90));
     while (mounted &&
         (!ref.read(initProvider) ||
@@ -252,119 +256,95 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
           : '${text.kwMembershipUntil} ${account.expiresAt!.toLocal().toIso8601String().substring(0, 10)}';
       return Column(
         children: [
-          SafeArea(
-            bottom: false,
-            child: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: isPermanent
-                    ? LinearGradient(
-                        colors: [
-                          Colors.amber.shade700,
-                          Colors.orange.shade600,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
-                color: isPermanent ? null : Theme.of(context).colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: isPermanent
-                    ? [
-                        BoxShadow(
-                          color: Colors.amber.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      isPermanent ? Icons.workspace_premium : Icons.account_circle,
-                      color: isPermanent ? Colors.white : Theme.of(context).colorScheme.primary,
-                      size: 32,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+          Container(
+            color: Theme.of(context).colorScheme.surface,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        // 用户名和到期时间
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                account.username,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isPermanent ? Colors.white : null,
-                                ),
-                              ),
-                              if (isPermanent) ...[
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.3),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Text(
-                                    'PRO',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      account.username,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
+                                  if (isPermanent) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF07C160).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                      child: const Text(
+                                        '永久',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Color(0xFF07C160),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                expiresText,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
-                              ],
+                              ),
                             ],
                           ),
-                          Text(
-                            expiresText,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: isPermanent ? Colors.white.withValues(alpha: 0.9) : null,
-                            ),
+                        ),
+                        // 操作按钮
+                        IconButton(
+                          tooltip: text.kwSync,
+                          onPressed: _busy ? null : () => _refresh(sync: true),
+                          icon: Icon(
+                            Icons.sync,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                        ],
-                      ),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        IconButton(
+                          tooltip: text.kwLogout,
+                          onPressed: _busy || _refreshing ? null : _logout,
+                          icon: Icon(
+                            Icons.logout,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      tooltip: text.kwSync,
-                      onPressed: _busy ? null : () => _refresh(sync: true),
-                      icon: Icon(
-                        Icons.sync,
-                        color: isPermanent ? Colors.white : null,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: text.kwAccountWebsite,
-                      onPressed: () => launchUrl(
-                        Uri.parse('$clientWebsite/user/index.php'),
-                        mode: LaunchMode.externalApplication,
-                      ),
-                      icon: Icon(
-                        Icons.account_circle_outlined,
-                        color: isPermanent ? Colors.white : null,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: text.kwLogout,
-                      onPressed: _busy || _refreshing ? null : _logout,
-                      icon: Icon(
-                        Icons.logout,
-                        color: isPermanent ? Colors.white : null,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  // 分割线
+                  Divider(
+                    height: 1,
+                    thickness: 0.5,
+                    color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                  ),
+                ],
               ),
             ),
           ),
