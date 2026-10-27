@@ -1,4 +1,5 @@
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/features/kuaiwangyun/card_redeem_dialog.dart';
 import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/state.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,20 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
   void onTrayMenuItemClick(MenuItem menuItem) {
     render?.active();
     super.onTrayMenuItemClick(menuItem);
+
+    final id = menuItem.id;
+    if (id == 'show_window') {
+      window?.show();
+    } else if (id == 'toggle_start') {
+      ref.read(commonActionProvider.notifier).toggleRunning();
+    } else if (id == 'redeem_card') {
+      final context = globalState.navigatorKey.currentContext;
+      if (context != null) {
+        showCardRedeemDialog(context);
+      }
+    } else if (id == 'exit') {
+      ref.read(systemActionProvider.notifier).handleExit(true);
+    }
   }
 
   @override
