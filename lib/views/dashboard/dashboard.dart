@@ -49,25 +49,9 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   // 一键智能连接
   Future<void> _smartConnect() async {
     try {
-      // 1. 启动核心
+      // 启动核心
       if (!ref.read(isStartProvider)) {
         ref.read(commonActionProvider.notifier).toggleRunning();
-      }
-      // 2. 等待核心启动
-      await Future.delayed(const Duration(seconds: 3));
-      // 3. 自动选择第一个可用代理组的第一个节点
-      final proxies = ref.read(proxiesProvider);
-      if (proxies.isNotEmpty) {
-        final group = proxies.values.firstWhere(
-          (p) => p.type == 'Selector' || p.type == 'URLTest',
-          orElse: () => proxies.values.first,
-        );
-        if (group.all?.isNotEmpty == true) {
-          ref.read(proxiesActionProvider.notifier).changeProxy(
-                groupName: group.name,
-                proxyName: group.all!.first,
-              );
-        }
       }
     } catch (e) {
       // 忽略错误
@@ -235,7 +219,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       (isEdit) => CommonScaffold(
         title: context.appLocalizations.dashboard,
         actions: _buildActions(isEdit),
-        floatingActionButton: const StartButton(),
         body: Align(
           alignment: Alignment.topCenter,
           child: SingleChildScrollView(
