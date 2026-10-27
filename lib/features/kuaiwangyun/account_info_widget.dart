@@ -6,17 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'client_api.dart';
 
 // 全局账户状态Provider
-final accountProvider = StateNotifierProvider<AccountNotifier, ClientAccount?>((ref) {
-  return AccountNotifier();
+final accountProvider = StateProvider<ClientAccount?>((ref) {
+  return null;
 });
-
-class AccountNotifier extends StateNotifier<ClientAccount?> {
-  AccountNotifier() : super(null);
-
-  void update(ClientAccount? account) {
-    state = account;
-  }
-}
 
 class AccountInfoWidget extends ConsumerWidget {
   const AccountInfoWidget({super.key});
@@ -28,7 +20,7 @@ class AccountInfoWidget extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final isPermanent = account.expiresAt?.year ?? 0 > 2099;
+    final isPermanent = (account.expiresAt?.year ?? 0) > 2099;
     final now = DateTime.now();
     final daysLeft = account.expiresAt?.difference(now).inDays ?? 0;
     final isExpiringSoon = !isPermanent && daysLeft <= 7;
