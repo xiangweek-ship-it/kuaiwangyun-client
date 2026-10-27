@@ -169,7 +169,7 @@ class ClientApi {
   Future<ClientAccount> redeemCard(String cardCode) async {
     final body = await _request(
       'redeem_card',
-      data: {'card_code': cardCode.trim()},
+      data: {'code': cardCode.trim()},
     );
     return ClientAccount.fromJson(body);
   }
