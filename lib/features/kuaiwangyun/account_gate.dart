@@ -27,6 +27,7 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
   bool _busy = true;
   bool _refreshing = false;
   bool _obscure = true;
+  bool _rememberMe = false;
   String? _error;
   Timer? _timer;
 
@@ -34,8 +35,19 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _restore());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _init());
     _timer = Timer.periodic(const Duration(seconds: 60), (_) => _refresh());
+  }
+
+  Future<void> _init() async {
+    // 加载记住的账号密码
+    final creds = await _api.loadCredentials();
+    if (creds != null) {
+      _username.text = creds.username;
+      _password.text = creds.password;
+      _rememberMe = true;
+    }
+    await _restore();
   }
 
   bool _managed(Profile profile) {
@@ -97,10 +109,6 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
   }
 
   Future<void> _syncProfiles(ClientAccount account) async {
-    // The first launch on Windows and Android can take a little longer while
-    // the embedded core creates its data directory and opens the control port.
-    // Keep the login flow patient so a slow first start does not look like a
-    // failed subscription sync.
     final deadline = DateTime.now().add(const Duration(seconds: 90));
     while (mounted &&
         (!ref.read(initProvider) ||
@@ -173,7 +181,12 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
     });
     try {
       final account = await _api.login(_username.text, _password.text);
-      _password.clear();
+      // 记住账号密码
+      if (_rememberMe) {
+        await _api.saveCredentials(_username.text, _password.text);
+      } else {
+        await _api.clearCredentials();
+      }
       await _clearProfiles();
       await _accept(account, sync: true);
     } catch (error) {
@@ -266,7 +279,6 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Row(
                       children: [
-                        // 用户名和到期时间
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,7 +326,6 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
                             ],
                           ),
                         ),
-                        // 操作按钮
                         IconButton(
                           tooltip: text.kwSync,
                           onPressed: _busy ? null : () => _refresh(sync: true),
@@ -338,7 +349,6 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
                       ],
                     ),
                   ),
-                  // 分割线
                   Divider(
                     height: 1,
                     thickness: 0.5,
@@ -360,111 +370,189 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
       );
     }
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: AutofillGroup(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Image.asset('assets/images/kuaiwangyun.png', height: 80),
-                    const SizedBox(height: 20),
-                    Text(
-                      appName,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(text.kwWelcome, textAlign: TextAlign.center),
-                    const SizedBox(height: 28),
-                    if (account == null) ...[
-                      TextField(
-                        controller: _username,
-                        enabled: !_busy,
-                        autofillHints: const [AutofillHints.username],
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: text.kwUsername,
-                          border: const OutlineInputBorder(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+              Theme.of(context).colorScheme.surface,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: AutofillGroup(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Logo
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Image.asset('assets/images/kuaiwangyun.png', height: 60),
+                      ),
+                      const SizedBox(height: 32),
+                      Text(
+                        appName,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _password,
-                        enabled: !_busy,
-                        obscureText: _obscure,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        autofillHints: const [AutofillHints.password],
-                        onSubmitted: (_) => _login(),
-                        decoration: InputDecoration(
-                          labelText: text.kwPassword,
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            tooltip: text.kwShowPassword,
-                            onPressed: () =>
-                                setState(() => _obscure = !_obscure),
-                            icon: Icon(
-                              _obscure
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
+                      const SizedBox(height: 8),
+                      Text(
+                        text.kwWelcome,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      if (account == null) ...[
+                        // 用户名输入框
+                        TextField(
+                          controller: _username,
+                          enabled: !_busy,
+                          autofillHints: const [AutofillHints.username],
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            labelText: text.kwUsername,
+                            prefixIcon: const Icon(Icons.person_outline),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surface,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // 密码输入框
+                        TextField(
+                          controller: _password,
+                          enabled: !_busy,
+                          obscureText: _obscure,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          autofillHints: const [AutofillHints.password],
+                          onSubmitted: (_) => _login(),
+                          decoration: InputDecoration(
+                            labelText: text.kwPassword,
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surface,
+                            suffixIcon: IconButton(
+                              tooltip: text.kwShowPassword,
+                              onPressed: () =>
+                                  setState(() => _obscure = !_obscure),
+                              icon: Icon(
+                                _obscure
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      FilledButton(
-                        onPressed: _busy ? null : _login,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text(text.kwLogin),
+                        const SizedBox(height: 8),
+                        // 记住我
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _rememberMe,
+                              onChanged: _busy
+                                  ? null
+                                  : (v) => setState(() => _rememberMe = v ?? false),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            Text(
+                              '记住密码',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ] else ...[
-                      Text(
-                        text.kwMembershipRequired,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      FilledButton(
+                        const SizedBox(height: 20),
+                        // 登录按钮
+                        FilledButton(
+                          onPressed: _busy ? null : _login,
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.all(16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            text.kwLogin,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ] else ...[
+                        Text(
+                          text.kwMembershipRequired,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton(
+                          onPressed: () => launchUrl(
+                            Uri.parse('$clientWebsite/user/index.php'),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                          child: Text(text.kwRenew),
+                        ),
+                        OutlinedButton(
+                          onPressed: _busy ? null : () => _refresh(sync: true),
+                          child: Text(text.kwRefreshMembership),
+                        ),
+                        TextButton(
+                          onPressed: _busy ? null : _logout,
+                          child: Text(text.kwLogout),
+                        ),
+                      ],
+                      if (_busy)
+                        const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: LinearProgressIndicator(),
+                        ),
+                      if (_error != null) _notice(context),
+                      const SizedBox(height: 24),
+                      TextButton(
                         onPressed: () => launchUrl(
-                          Uri.parse('$clientWebsite/user/index.php'),
+                          Uri.parse('$clientWebsite/user/login.php'),
                           mode: LaunchMode.externalApplication,
                         ),
-                        child: Text(text.kwRenew),
+                        child: Text(text.kwAccountWebsite),
                       ),
-                      OutlinedButton(
-                        onPressed: _busy ? null : () => _refresh(sync: true),
-                        child: Text(text.kwRefreshMembership),
-                      ),
-                      TextButton(
-                        onPressed: _busy ? null : _logout,
-                        child: Text(text.kwLogout),
+                      Text(
+                        text.kwPrivacy,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
-                    if (_busy)
-                      const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: LinearProgressIndicator(),
-                      ),
-                    if (_error != null) _notice(context),
-                    TextButton(
-                      onPressed: () => launchUrl(
-                        Uri.parse('$clientWebsite/user/login.php'),
-                        mode: LaunchMode.externalApplication,
-                      ),
-                      child: Text(text.kwAccountWebsite),
-                    ),
-                    Text(
-                      text.kwPrivacy,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
