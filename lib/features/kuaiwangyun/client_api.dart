@@ -165,13 +165,49 @@ class ClientApi {
   Future<ClientAccount> account() async =>
       ClientAccount.fromJson(await _request('account'));
 
-  // 卡密兑换
+  // 卡密兑换 - 直接调用网页版接口
   Future<ClientAccount> redeemCard(String cardCode) async {
-    final body = await _request(
-      'card_redeem',
-      data: {'card_code': cardCode.trim()},
-    );
-    return ClientAccount.fromJson(body);
+    try {
+      // 创建一个新的 Dio 实例用于调用网页版接口
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: clientWebsite,
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 20),
+          followRedirects: false,
+          headers: {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        ),
+      );
+
+      // 先获取 session cookie
+      await dio.get('/user/index.php');
+
+      // 提交卡密兑换表单
+      final response = await dio.post(
+        '/user/index.php',
+        data: {'card_code': cardCode.trim()},
+      );
+
+      // 检查是否兑换成功
+      if (response.data.toString().contains('兑换成功')) {
+        // 兑换成功后，重新获取账户信息
+        return account();
+      } else if (response.data.toString().contains('卡密无效') ||
+          response.data.toString().contains('已被使用')) {
+        throw const ClientApiException('invalid_card');
+      } else {
+        throw const ClientApiException('redeem_failed');
+      }
+    } on DioException catch (error) {
+      throw ClientApiException(
+        error.response?.statusCode == 401
+            ? 'unauthorized'
+            : 'network_error',
+      );
+    }
   }
 
   Future<ClientSourceResponse> fetchSource(ClientSource source) async {
