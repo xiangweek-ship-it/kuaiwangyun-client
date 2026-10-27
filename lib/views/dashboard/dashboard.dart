@@ -51,20 +51,20 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     try {
       final commonAction = ref.read(commonActionProvider.notifier);
       final systemAction = ref.read(systemActionProvider.notifier);
-      
+
       // 1. 启动核心（如果未启动）
       if (!ref.read(isStartProvider)) {
         commonAction.toggleRunning();
         // 等待核心启动
         await Future.delayed(const Duration(seconds: 2));
       }
-      
+
       // 2. 确保系统代理已开启
       final systemProxy = ref.read(configProvider).vpnProps.systemProxy;
       if (!systemProxy) {
         systemAction.updateSystemProxy();
       }
-      
+
       // 3. 显示成功提示
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -252,7 +252,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16).copyWith(bottom: 88),
             child: Align(
-              alignment: topCenter,
+              alignment: Alignment.topCenter,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: _maxGridWidth),
                 child: LayoutBuilder(
@@ -334,7 +334,7 @@ class _AddedContainer extends StatefulWidget {
   const _AddedContainer({required this.child, required this.onAdd});
 
   @override
-  State<_AddedContainerState> createState() => _AddedContainerState();
+  State<_AddedContainer> createState() => _AddedContainerState();
 }
 
 class _AddedContainerState extends State<_AddedContainer> {
