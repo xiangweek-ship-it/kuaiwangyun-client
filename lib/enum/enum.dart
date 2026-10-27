@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:fl_clash/common/context.dart';
 import 'package:fl_clash/common/system.dart';
+import 'package:fl_clash/features/kuaiwangyun/account_info_widget.dart';
 import 'package:fl_clash/views/dashboard/widgets/widgets.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -246,6 +247,7 @@ enum FunctionTag {
 }
 
 enum DashboardWidget {
+  accountInfo(GridItem(crossAxisCellCount: 8, child: AccountInfoWidget())),
   networkSpeed(GridItem(crossAxisCellCount: 8, child: NetworkSpeed())),
   outboundModeV2(GridItem(crossAxisCellCount: 8, child: OutboundModeV2())),
   outboundMode(GridItem(crossAxisCellCount: 4, child: OutboundMode())),
@@ -415,10 +417,10 @@ extension RuleActionExt on RuleAction {
       RuleAction.IN_NAME => appLocalizations.ruleActionInNameDesc,
       RuleAction.PROCESS_PATH => appLocalizations.ruleActionProcessPathDesc,
       RuleAction.PROCESS_PATH_REGEX =>
-        appLocalizations.ruleActionProcessPathRegexDesc,
+          appLocalizations.ruleActionProcessPathRegexDesc,
       RuleAction.PROCESS_NAME => appLocalizations.ruleActionProcessNameDesc,
       RuleAction.PROCESS_NAME_REGEX =>
-        appLocalizations.ruleActionProcessNameRegexDesc,
+          appLocalizations.ruleActionProcessNameRegexDesc,
       RuleAction.UID => appLocalizations.ruleActionUidDesc,
       RuleAction.NETWORK => appLocalizations.ruleActionNetworkDesc,
       RuleAction.DSCP => appLocalizations.ruleActionDscpDesc,
