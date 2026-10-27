@@ -37,6 +37,7 @@ const defaultAccessControlProps = AccessControlProps();
 const defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor, themeMode: ThemeMode.system);
 
 const List<DashboardWidget> defaultDashboardWidgets = [
+  DashboardWidget.accountInfo,
   DashboardWidget.networkSpeed,
   DashboardWidget.systemProxyButton,
   DashboardWidget.tunButton,
@@ -159,7 +160,7 @@ abstract class VpnProps with _$VpnProps {
     @Default(defaultAccessControlProps) AccessControlProps accessControlProps,
   }) = _VpnProps;
 
-  factory VpnProps.fromJson(Map<String, Object?>? json) =>
+  factory VpnProps.fromJson(Map<String, Object?> json) =>
       json == null ? defaultVpnProps : _$VpnPropsFromJson(json);
 }
 
@@ -173,7 +174,7 @@ abstract class NetworkProps with _$NetworkProps {
     @Default(false) bool appendSystemDns,
   }) = _NetworkProps;
 
-  factory NetworkProps.fromJson(Map<String, Object?>? json) =>
+  factory NetworkProps.fromJson(Map<String, Object?> json) =>
       json == null ? defaultNetworkProps : _$NetworkPropsFromJson(json);
 }
 
@@ -187,7 +188,7 @@ abstract class ProxiesStyleProps with _$ProxiesStyleProps {
     @Default(ProxyCardType.expand) ProxyCardType cardType,
   }) = _ProxiesStyleProps;
 
-  factory ProxiesStyleProps.fromJson(Map<String, Object?>? json) => json == null
+  factory ProxiesStyleProps.fromJson(Map<String, Object?> json) => json == null
       ? defaultProxiesStyleProps
       : _$ProxiesStylePropsFromJson(json);
 }
