@@ -48,33 +48,29 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
   // 一键智能连接
   Future<void> _smartConnect() async {
-    // 1. 启动核心
-    if (!ref.read(isStartProvider)) {
-      ref.read(commonActionProvider.notifier).toggleRunning();
-    }
-    // 2. 等待核心启动
-    await Future.delayed(const Duration(seconds: 2));
-    // 3. 自动选择最优线路（延迟最低的节点）
-    // 这里调用核心的延迟测试接口，选择延迟最低的节点
-    // 由于FlClash的核心API比较复杂，这里简化为自动选择第一个可用节点
     try {
+      // 1. 启动核心
+      if (!ref.read(isStartProvider)) {
+        ref.read(commonActionProvider.notifier).toggleRunning();
+      }
+      // 2. 等待核心启动
+      await Future.delayed(const Duration(seconds: 3));
+      // 3. 自动选择第一个可用代理组的第一个节点
       final proxies = ref.read(proxiesProvider);
       if (proxies.isNotEmpty) {
-        // 找到第一个可用的代理组
         final group = proxies.values.firstWhere(
           (p) => p.type == 'Selector' || p.type == 'URLTest',
           orElse: () => proxies.values.first,
         );
-        // 选择该组中第一个可用节点
         if (group.all?.isNotEmpty == true) {
           ref.read(proxiesActionProvider.notifier).changeProxy(
-                group.name,
-                group.all!.first,
+                groupName: group.name,
+                proxyName: group.all!.first,
               );
         }
       }
     } catch (e) {
-      // 忽略错误，使用默认选择
+      // 忽略错误
     }
   }
 
