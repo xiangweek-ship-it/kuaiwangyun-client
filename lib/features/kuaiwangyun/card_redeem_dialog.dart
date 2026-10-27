@@ -35,6 +35,8 @@ class _CardRedeemDialogState extends State<CardRedeemDialog> {
     });
 
     try {
+      // 先从本地存储恢复 token，确保登录状态有效
+      await globalClientApi.restore();
       final account = await globalClientApi.redeemCard(card);
       setState(() {
         _success = '兑换成功！\n会员到期时间：${account.expiresAt?.toString().split(' ')[0] ?? '永久'}';
@@ -64,6 +66,8 @@ class _CardRedeemDialogState extends State<CardRedeemDialog> {
         return '卡密已被使用';
       case 'network_error':
         return '网络错误，请检查网络连接';
+      case 'unauthorized':
+        return '登录已过期，请重新登录';
       default:
         return '兑换失败：$code';
     }
