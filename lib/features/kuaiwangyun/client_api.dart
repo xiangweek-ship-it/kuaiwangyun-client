@@ -93,6 +93,29 @@ class ClientApi {
   final Dio _dio;
   final FlutterSecureStorage _storage;
   String? _token;
+
+  // 记住账号密码
+  Future<void> saveCredentials(String username, String password) async {
+    await _storage.write(key: 'kuaiwangyun.username', value: username);
+    await _storage.write(key: 'kuaiwangyun.password', value: password);
+    await _storage.write(key: 'kuaiwangyun.remember', value: 'true');
+  }
+
+  Future<({String username, String password})?> loadCredentials() async {
+    final remember = await _storage.read(key: 'kuaiwangyun.remember');
+    if (remember != 'true') return null;
+    final username = await _storage.read(key: 'kuaiwangyun.username');
+    final password = await _storage.read(key: 'kuaiwangyun.password');
+    if (username == null || password == null) return null;
+    return (username: username, password: password);
+  }
+
+  Future<void> clearCredentials() async {
+    await _storage.delete(key: 'kuaiwangyun.username');
+    await _storage.delete(key: 'kuaiwangyun.password');
+    await _storage.delete(key: 'kuaiwangyun.remember');
+  }
+
   Future<bool> restore() async {
     _token = await _storage.read(key: 'kuaiwangyun.session.v1');
     return _token != null;
