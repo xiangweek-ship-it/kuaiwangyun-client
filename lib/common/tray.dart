@@ -100,26 +100,6 @@ class Tray {
         if (!ref.read(isStartProvider)) {
           commonAction.toggleRunning();
         }
-        // 等待核心启动后自动选择最优线路
-        Future.delayed(const Duration(seconds: 2), () {
-          try {
-            final proxies = ref.read(proxiesProvider);
-            if (proxies.isNotEmpty) {
-              final group = proxies.values.firstWhere(
-                (p) => p.type == 'Selector' || p.type == 'URLTest',
-                orElse: () => proxies.values.first,
-              );
-              if (group.all?.isNotEmpty == true) {
-                ref.read(proxiesActionProvider.notifier).changeProxy(
-                      groupName: group.name,
-                      proxyName: group.all!.first,
-                    );
-              }
-            }
-          } catch (e) {
-            // 忽略错误
-          }
-        });
       },
     );
     menuItems.add(smartConnectMenuItem);
