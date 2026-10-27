@@ -49,12 +49,40 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   // 一键智能连接
   Future<void> _smartConnect() async {
     try {
-      // 启动核心
+      final commonAction = ref.read(commonActionProvider.notifier);
+      final systemAction = ref.read(systemActionProvider.notifier);
+      
+      // 1. 启动核心（如果未启动）
       if (!ref.read(isStartProvider)) {
-        ref.read(commonActionProvider.notifier).toggleRunning();
+        commonAction.toggleRunning();
+        // 等待核心启动
+        await Future.delayed(const Duration(seconds: 2));
+      }
+      
+      // 2. 确保系统代理已开启
+      final systemProxy = ref.read(configProvider).vpnProps.systemProxy;
+      if (!systemProxy) {
+        systemAction.updateSystemProxy();
+      }
+      
+      // 3. 显示成功提示
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('智能连接已启动'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
-      // 忽略错误
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('连接失败：$e'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -224,7 +252,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16).copyWith(bottom: 88),
             child: Align(
-              alignment: Alignment.topCenter,
+              alignment: topCenter,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: _maxGridWidth),
                 child: LayoutBuilder(
@@ -306,7 +334,7 @@ class _AddedContainer extends StatefulWidget {
   const _AddedContainer({required this.child, required this.onAdd});
 
   @override
-  State<_AddedContainer> createState() => _AddedContainerState();
+  State<_AddedContainerState> createState() => _AddedContainerState();
 }
 
 class _AddedContainerState extends State<_AddedContainer> {
