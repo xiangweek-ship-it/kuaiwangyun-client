@@ -74,8 +74,8 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
             );
             if (group.all?.isNotEmpty == true) {
               ref.read(proxiesActionProvider.notifier).changeProxy(
-                    group.name,
-                    group.all!.first,
+                    groupName: group.name,
+                    proxyName: group.all!.first,
                   );
             }
           }
