@@ -19,6 +19,9 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+      - name: Install Visual Studio Build Tools
+        run: |
+          choco install visualstudio2022-workload-vctools --no-progress --confirm
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26.4'
