@@ -64,3 +64,45 @@ jobs:
             dist/**/*.exe
             dist/**/*.zip
           generate_release_notes: false
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.4'
+          cache-dependency-path: core/go.sum
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.4'
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Build Android APK
+        run: dart setup.dart android --env stable -v
+      - name: List build output files
+        run: |
+          echo "=== All apk files ==="
+          find . -name "*.apk" -type f
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-package
+          path: |
+            dist/**/*.apk
+            **/*.apk
+          retention-days: 7
+      - name: Upload to Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**/*.apk
+          generate_release_notes: false
