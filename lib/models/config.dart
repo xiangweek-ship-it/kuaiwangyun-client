@@ -173,8 +173,8 @@ abstract class NetworkProps with _$NetworkProps {
     @Default(false) bool appendSystemDns,
   }) = _NetworkProps;
 
-  factory NetworkProps.fromJson(Map<String, Object?> json) =>
-      json == null ? const NetworkProps() : _$NetworkPropsFromJson(json);
+  factory NetworkProps.fromJson(Map<String, Object?>? json) =>
+      json == null ? defaultNetworkProps : _$NetworkPropsFromJson(json);
 }
 
 @freezed
