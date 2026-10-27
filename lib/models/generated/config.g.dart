@@ -113,7 +113,7 @@ Map<String, dynamic> _$AccessControlPropsToJson(_AccessControlProps instance) =>
       'mode': _$AccessControlModeEnumMap[instance.mode]!,
       'acceptList': instance.acceptList,
       'rejectList': instance.rejectList,
-      'sort': _$AccessSortTypeEnumMap[instance.sortType]!,
+      'sort': _$AccessSortTypeEnumMap[instance.sort]!,
       'isFilterSystemApp': instance.isFilterSystemApp,
       'isFilterNonInternetApp': instance.isFilterNonInternetApp,
     };
