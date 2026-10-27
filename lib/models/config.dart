@@ -34,7 +34,7 @@ const defaultNetworkProps = NetworkProps();
 const defaultProxiesStyleProps = ProxiesStyleProps();
 const defaultWindowProps = WindowProps();
 const defaultAccessControlProps = AccessControlProps();
-const defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor);
+const defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor, themeMode: ThemeMode.system);
 
 const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.networkSpeed,
@@ -173,7 +173,7 @@ abstract class NetworkProps with _$NetworkProps {
     @Default(false) bool appendSystemDns,
   }) = _NetworkProps;
 
-  factory NetworkProps.fromJson(Map<String, Object?>? json) =>
+  factory NetworkProps.fromJson(Map<String, Object?> json) =>
       json == null ? const NetworkProps() : _$NetworkPropsFromJson(json);
 }
 
@@ -208,7 +208,7 @@ abstract class ThemeProps with _$ThemeProps {
   const factory ThemeProps({
     int? primaryColor,
     @Default(defaultPrimaryColors) List<int> primaryColors,
-    @Default(ThemeMode.dark) ThemeMode themeMode,
+    @Default(ThemeMode.system) ThemeMode themeMode,
     @Default(DynamicSchemeVariant.content) DynamicSchemeVariant schemeVariant,
     @Default(false) bool pureBlack,
     @Default(TextScale()) TextScale textScale,

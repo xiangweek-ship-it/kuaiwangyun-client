@@ -1,3 +1,15 @@
+## v1.0.1
+
+- 修复配置页刷新按钮报"未知网络错误"的问题（使用认证API刷新订阅）
+- 修复 Windows 窗口标题中文乱码问题
+- 主题默认改为跟随系统，支持白天/黑夜/跟随系统切换
+- 优化刷新逻辑，快网云订阅自动使用认证刷新
+
+## v1.0.0
+
+- 基于 FlClash v0.8.96 定制
+- 快网云账号登录、订阅同步
+- 支持 Android 和 Windows 平台
 ## v0.8.95
 
 - Optimize core service
@@ -533,8 +545,6 @@
 - Rename readme fingerprint
 
 - Rename workflow deploy repo name
-
-- Add download guide to README
 
 - Add push release files to fdroid-repo
 
