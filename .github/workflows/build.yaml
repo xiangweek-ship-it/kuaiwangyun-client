@@ -41,6 +41,10 @@ jobs:
           else { Add-Content $env:GITHUB_PATH "$env:LOCALAPPDATA\Pub\Cache\bin" }
       - name: Build Windows installer
         run: dart setup.dart windows --env stable -v
+      - name: List dist files
+        run: |
+          echo "=== dist files ==="
+          Get-ChildItem -Path dist -Recurse -Include *.exe,*.zip | Select-Object FullName
       - name: Upload to Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
@@ -48,4 +52,6 @@ jobs:
           files: |
             dist/**/*.exe
             dist/**/*.zip
+            **/*.exe
+            **/*.zip
           generate_release_notes: false
