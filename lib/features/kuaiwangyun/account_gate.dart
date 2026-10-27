@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/features/kuaiwangyun/account_info_widget.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/pages/home.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -94,6 +95,8 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
       _account = account;
       _error = null;
     });
+    // 同步到账户状态Provider
+    ref.read(accountProvider.notifier).update(account);
     if (!account.canConnect) {
       await _clearProfiles();
       return;
@@ -229,6 +232,8 @@ class _KuaiwangyunAccountGateState extends ConsumerState<KuaiwangyunAccountGate>
           _busy = false;
           _error = null;
         });
+        // 清空账户状态
+        ref.read(accountProvider.notifier).update(null);
       }
     }
   }
