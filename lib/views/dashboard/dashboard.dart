@@ -4,6 +4,7 @@ import 'package:defer_pointer/defer_pointer.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/core/core.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/features/kuaiwangyun/card_redeem_dialog.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,13 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
   List<Widget> _buildActions(bool isEdit) {
     return [
+      if (!isEdit) ...[
+        IconButton(
+          icon: const Icon(Icons.card_giftcard),
+          tooltip: '卡密兑换',
+          onPressed: () => showCardRedeemDialog(context),
+        ),
+      ],
       if (!isEdit && coreLib == null) const CoreStatusButton(),
       if (isEdit)
         ValueListenableBuilder(
