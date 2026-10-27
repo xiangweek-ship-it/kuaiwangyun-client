@@ -72,7 +72,31 @@ class ProfilesAction extends _$ProfilesAction {
         ref.read(isUpdatingProvider(profile.updatingKey).notifier).value = true;
       }
       ref.read(profilesProvider.notifier).put(profile);
-      final newProfile = await profile.update();
+      
+      // 检查是否是快网云管理的订阅
+      final uri = Uri.tryParse(profile.url);
+      final isKwSource = uri?.host == 'kuaiwangyun.com' &&
+          uri?.path == '/vpn/user/subscribe.php';
+      
+      late final Profile newProfile;
+      if (isKwSource) {
+        // 使用快网云认证 API 刷新
+        final source = ClientSource(
+          id: profile.id,
+          name: profile.label,
+          url: profile.url,
+        );
+        final response = await globalClientApi.fetchSource(source);
+        newProfile = await profile
+            .copyWith(
+              subscriptionInfo: SubscriptionInfo.formHString(response.userInfo),
+            )
+            .saveFile(response.bytes);
+      } else {
+        // 上游通用刷新
+        newProfile = await profile.update();
+      }
+      
       ref.read(profilesProvider.notifier).put(newProfile);
       if (profile.id == ref.read(currentProfileIdProvider)) {
         ref

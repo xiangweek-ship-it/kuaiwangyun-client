@@ -36,6 +36,7 @@ class Window {
     }
     await windowManager.setMaximizable(true);
     await _windowPosition(props);
+    await windowManager.setTitle(appName);
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.setPreventClose(true);
     });

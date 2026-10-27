@@ -188,3 +188,6 @@ class ClientApi {
 
   void close() => _dio.close(force: true);
 }
+
+// 全局单例，供其他模块（如 profiles 刷新）使用
+final ClientApi globalClientApi = ClientApi();
