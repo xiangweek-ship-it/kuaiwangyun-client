@@ -165,6 +165,15 @@ class ClientApi {
   Future<ClientAccount> account() async =>
       ClientAccount.fromJson(await _request('account'));
 
+  // 卡密兑换
+  Future<ClientAccount> redeemCard(String cardCode) async {
+    final body = await _request(
+      'redeem_card',
+      data: {'card_code': cardCode.trim()},
+    );
+    return ClientAccount.fromJson(body);
+  }
+
   Future<ClientSourceResponse> fetchSource(ClientSource source) async {
     try {
       final response = await _dio.get<Uint8List>(
