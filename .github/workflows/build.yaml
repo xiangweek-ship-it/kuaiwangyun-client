@@ -3,11 +3,16 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+  release:
+    types: [created]
+
 concurrency:
   group: client-build
   cancel-in-progress: true
+
 permissions:
-  contents: read
+  contents: write
+
 jobs:
   windows:
     runs-on: windows-2022
@@ -36,9 +41,11 @@ jobs:
           else { Add-Content $env:GITHUB_PATH "$env:LOCALAPPDATA\Pub\Cache\bin" }
       - name: Build Windows installer
         run: dart setup.dart windows --env stable -v
-      - uses: actions/upload-artifact@v4
+      - name: Upload to Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
         with:
-          name: Kuaiwangyun-Windows-x64
-          path: dist/**
-          if-no-files-found: error
-          retention-days: 14
+          files: |
+            dist/**/*.exe
+            dist/**/*.zip
+          generate_release_notes: false
