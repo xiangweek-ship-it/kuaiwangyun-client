@@ -70,6 +70,10 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+      - name: Fix script permissions
+        run: |
+          chmod +x plugins/setup/buildkit/run_build_tool.sh
+          chmod +x plugins/setup/buildkit/*.sh
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
