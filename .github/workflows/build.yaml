@@ -60,7 +60,7 @@ jobs:
         if: github.event_name == 'release' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.1
+          tag_name: v1.0.2
           files: |
             dist/**/*.exe
             dist/**/*.zip
@@ -108,7 +108,7 @@ jobs:
         if: github.event_name == 'release' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.1
+          tag_name: v1.0.2
           files: |
             dist/**/*.apk
           generate_release_notes: false
